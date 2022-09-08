@@ -12,6 +12,7 @@ const getSheetData = async () => {
     return data;
   };
   const sheetId = "1ujrnwrvuWBk21q_1gC3aiVzB9joPFbFebJpbJLqpeUY";
+
   const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
   const sheetName = "raw";
   const query = encodeURIComponent("Select *");
@@ -22,7 +23,7 @@ const getSheetData = async () => {
   parsed = JSON.parse(data.substring(47).slice(0, -2));
 
   let columns = parsed.table.cols.map((col) => col.label);
-  let items = parsed.table.rows.map(({ c }) => cleanRow(c));
+  let items = parsed.table.rows.map(({ c }) => cleanRow(c)); // only as in array
   // .map(([name, branch, typeMid, typeSmall, address, building, lon, lat]) => ({ name, branch, typeMid, typeSmall, address, building, lon, lat }))
   l = columns.length;
   var formattedItems = []; //formatted into array of objects
@@ -34,10 +35,16 @@ const getSheetData = async () => {
     }
     formattedItems.push(o);
   }
-  console.log({ items });
-  console.log({ formattedItems });
-
-  return items;
+  //   console.log(formattedItems);
+  return formattedItems;
 };
 
-var globalObject = getSheetData();
+let nameSuggestions;
+let globalItems;
+// we need then to resolve
+getSheetData().then((items) => {
+  globalItems = items;
+  nameSuggestions = items
+    .filter((item) => item["상세영업상태코드"] == 1)
+    .map((item) => item["사업장명"]);
+});
